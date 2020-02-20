@@ -78,12 +78,6 @@ int check_new_orders();
 int order_on_floor(int floor, direction_t direction);
 
 /**
- * @brief When this function is called, the elevator enters the stop state.
- * Changes @p start_time to the time when the stop button is not pressed.
- */
-void stop(time_t *start_time);
-
-/**
  * @brief resets the order structs in the order array of the state struct
  */
 void reset_orders(void);
