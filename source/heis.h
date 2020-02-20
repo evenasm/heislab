@@ -1,6 +1,7 @@
 #include <time.h>
 
 #define NUMBER_OF_FLOORS 4
+#define NUM_OF_ORDER_TYPES 3
 
 /**
  * @file
@@ -9,26 +10,19 @@
 
 typedef enum
 {
-    DOWN = 0,
-    UP = 1,
-    STOP = 2,
+    UP = 0,
+    STOP = 1,
+    DOWN = 2,
 } direction_t;
-
-typedef struct
-{
-    int down;
-    int up;
-    int stop;
-} order_t;
 
 /**
  * @brief A struct to represent the internal state of the elevator
  */
 typedef struct
 {
-    direction_t direction; //!< Enum for the direction of the elevator
-    int last_floor;        //!< Last floor the elevator hit. Must be greater than 0 and less than 5.
-    order_t orders[4];     //!< Array with floor that have orders. orders[0] >0 means there is an order on floor 1.
+    direction_t direction;                            //!< Enum for the direction of the elevator
+    int last_floor;                                   //!< Last floor the elevator hit. Must be greater than 0 and less than 5.
+    int orders[NUMBER_OF_FLOORS][NUM_OF_ORDER_TYPES]; //!< Array with floor that have orders. orders[a][b] means there is an order of type b on floor a. 0 = up, 1 = inside.
 } elevator_state_t;
 
 /**
@@ -93,3 +87,17 @@ void stop(time_t *start_time);
  * @brief resets the order structs in the order array of the state struct
  */
 void reset_orders(void);
+
+/**
+ * @brief Returns floor on which the order is whne the elevator stands still.
+ * 
+ * @return returns -1 on no orders.
+ */
+int get_floor(void);
+
+/**
+ * @brief returns the direction of the floor with an order, and sets the sate struct accordingly.
+ * 
+ * @return The direction to go.
+ */
+direction_t get_direction(void);

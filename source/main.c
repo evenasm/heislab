@@ -42,6 +42,23 @@ int main()
 
     signal(SIGINT, sigint_handler);
 
+    while (1)
+    {
+        if (check_new_orders())
+        {
+            int floor = get_floor();
+            if (!(floor == -1))
+            {
+                direction_t dir = get_direction();
+                while (!(hardware_read_floor_sensor(floor)))
+                {
+                    hardware_command_movement(dir);
+                }
+                hardware_hardware_command_movement(STOP);
+            }
+        }
+    }
+
     // printf("=== Example Program ===\n");
     // printf("Press the stop button on the elevator panel to exit\n");
 

@@ -27,11 +27,7 @@ void set_floor_light(int floor)
 
 void init(void)
 {
-    for (int i = 0; i < NUMBER_OF_FLOORS; i++)
-    {
-        order_t order = {.stop = 0, .down = 0, .up = 0};
-        state.orders[i] = order;
-    }
+    reset_orders();
     state.direction = STOP;
     state.last_floor = 1;
     while (!(hardware_read_floor_sensor(0)))
@@ -79,8 +75,10 @@ void reset_orders(void)
 {
     for (int i = 0; i < NUMBER_OF_FLOORS; i++)
     {
-        order_t order = {.stop = 0, .down = 0, .up = 0};
-        state.orders[i] = order;
+        for (int j = 0; j < NUM_OF_ORDER_TYPES; j++)
+        {
+            state.orders[i][j] = 0;
+        }
     }
 }
 
@@ -91,7 +89,7 @@ int orders_in_direction(void)
         int floors_visited = state.last_floor;
         for (int i = floors_visited; i < NUMBER_OF_FLOORS; i++)
         {
-            if ((state.orders[i].down) || (state.orders[i].up || state.orders[i].stop))
+            if ((state.orders[i][1]) || (state.orders[i][1] || state.orders[i][2]))
             {
                 return 1;
             }
@@ -102,11 +100,58 @@ int orders_in_direction(void)
         int floors_left = state.last_floor;
         for (int i = 0; i < floors_left; i++)
         {
-            if ((state.orders[i].down) || (state.orders[i].up || state.orders[i].stop))
+            if ((state.orders[i][0]) || (state.orders[i][1] || state.orders[i][2]))
             {
                 return 1;
             }
         }
     }
     return 0;
+}
+
+int check_new_orders(void)
+{
+    int new_order = 0;
+    for (int i = 0; i < NUMBER_OF_FLOORS; i++)
+    {
+        for (int j = 0; j < NUM_OF_ORDER_TYPES; j++)
+        {
+            int order_state = hardware_read_order(i, j);
+            if ((order_state == 1) && (state.orders[i][j] != order_state))
+            {
+                new_order = 1;
+                state.orders[i][j] = order_state; //1
+            }
+        }
+    }
+    return new_order;
+}
+
+int get_floor(void)
+{
+    for (int i = 0; i < NUMBER_OF_FLOORS; i++)
+    {
+        for (int j = 0; j < NUM_OF_ORDER_TYPES; j++)
+        {
+            if (state.orders[i][j] == 1)
+            {
+                return i;
+            }
+        }
+    }
+    return -1;
+}
+
+direction_t get_direction(void)
+{
+    direction_t dir = STOP;
+    if (state.last_floor > get_floor())
+    {
+        dir = DOWN;
+    }
+    else if (state.last_floor < get_floor())
+    {
+        dir = UP;
+    }
+    return dir;
 }
