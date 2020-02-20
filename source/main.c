@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <signal.h>
 #include "hardware.h"
+#include "heis.h"
 
 static void clear_all_order_lights(){
     HardwareOrder order_types[3] = {
@@ -31,6 +32,7 @@ int main(){
         fprintf(stderr, "Unable to initialize hardware\n");
         exit(1);
     }
+    init();
 
     signal(SIGINT, sigint_handler);
     
