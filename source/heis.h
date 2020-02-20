@@ -7,14 +7,15 @@
  * @brief A library to abstract the operations of the elevator
  */
 
-
-typedef enum {
+typedef enum
+{
     DOWN = 0,
     UP = 1,
     STOP = 2,
-}direction_t;
+} direction_t;
 
-typedef struct{
+typedef struct
+{
     int down;
     int up;
     int stop;
@@ -23,12 +24,12 @@ typedef struct{
 /**
  * @brief A struct to represent the internal state of the elevator
  */
-typedef struct {
+typedef struct
+{
     direction_t direction; //!< Enum for the direction of the elevator
-    int last_floor; //!< Last floor the elevator hit. Must be greater than 0 and less than 5.
-    order_t orders[4]; //!< Array with floor that have orders. orders[0] >0 means there is an order on floor 1.
-}elevator_state_t;
-
+    int last_floor;        //!< Last floor the elevator hit. Must be greater than 0 and less than 5.
+    order_t orders[4];     //!< Array with floor that have orders. orders[0] >0 means there is an order on floor 1.
+} elevator_state_t;
 
 /**
  * @brief A function to check that the @p floor argument is valid.
@@ -52,9 +53,8 @@ void moving(void);
  * @brief Function for initalizing hardware, variables and structs. MUST be called at startup.
  * Also takes the elevator to floor 1.
  * 
- * @return 1 on success, 0 on failure.
  */
-int init(void);
+void init(void);
 
 /**
  * @brief Opens the door upon order at given floor. This program keeps track of time and checks
@@ -66,8 +66,7 @@ void open_door();
  * @brief Checks for orders in the given @p direction above or below last_floor.
  * @return 1 on orders in given @p direction, 0 otherwise.
  */
-int orders_in_direction(direction_t direction);
-
+int orders_in_direction();
 
 /**
  * @brief Polls the hardware via provided functions to check for new orders.
@@ -77,14 +76,12 @@ int orders_in_direction(direction_t direction);
  */
 int check_new_orders();
 
-
 /**
  * @brief Checks if there is an order on @p floor in the given @p direction .
  * 
  * @return 1 if there is an order, 0 otherwise.
  */
 int order_on_floor(int floor, direction_t direction);
-
 
 /**
  * @brief When this function is called, the elevator enters the stop state.
