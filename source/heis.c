@@ -116,7 +116,8 @@ int check_new_orders(void)
     {
         for (int j = 0; j < NUM_OF_ORDER_TYPES; j++)
         {
-            int order_state = hardware_read_order(i, j);
+            HardwareOrder order = int_to_order(j);
+            int order_state = hardware_read_order(i, order);
             if ((order_state == 1) && (state.orders[i][j] != order_state))
             {
                 new_order = 1;
@@ -154,4 +155,70 @@ direction_t get_direction(void)
         dir = UP;
     }
     return dir;
+}
+
+HardwareOrder convert_enum(direction_t local_enum)
+{
+    switch (local_enum)
+    {
+    case UP:
+        return HARDWARE_ORDER_UP;
+        break;
+    case STOP:
+        return HARDWARE_ORDER_INSIDE;
+        break;
+    case DOWN:
+        return HARDWARE_ORDER_DOWN;
+        break;
+    }
+    return HARDWARE_ORDER_INSIDE;
+}
+
+HardwareOrder int_to_order(int j)
+{
+    HardwareOrder order;
+    switch (j)
+    {
+    case 0:
+        order = HARDWARE_ORDER_UP;
+        break;
+    case 1:
+        order = HARDWARE_ORDER_INSIDE;
+        break;
+    case DOWN:
+        order = HARDWARE_ORDER_DOWN;
+        break;
+    }
+    return order;
+}
+
+void set_last_floor(int floor)
+{
+    state.last_floor = floor;
+}
+
+int direction_to_int(direction_t dir)
+{
+    switch (dir)
+    {
+    case UP:
+        return 0;
+        break;
+    case STOP:
+        return 1;
+        break;
+    case DOWN:
+        return 2;
+        break;
+    }
+    return -1;
+}
+
+int order_on_floor(int floor, direction_t direction)
+{
+    if (state.orders[floor][direction_to_int(direction)])
+    {
+        return 1;
+    }
+    return 0;
 }

@@ -101,3 +101,27 @@ int get_floor(void);
  * @return The direction to go.
  */
 direction_t get_direction(void);
+
+/**
+ * @brief Converts local movement enum to hardware enum
+ * 
+ * @param local_enum The local enum to be converted
+ * 
+ * @return The corresponding hardware enum
+ */
+HardwareOrder convert_enum(direction_t local_enum);
+
+/**
+ * @brief Converts int to corresponding hardware order
+ * 
+ * @param Int to convert
+ * 
+ * @return the corresponding Hardware order.
+ */
+HardwareOrder int_to_order(int j);
+
+/**
+ * @brief Sets last floor in state struct
+ * 
+ */
+void set_last_floor(int floor);

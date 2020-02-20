@@ -52,9 +52,11 @@ int main()
                 direction_t dir = get_direction();
                 while (!(hardware_read_floor_sensor(floor)))
                 {
-                    hardware_command_movement(dir);
+                    hardware_command_movement(convert_enum(dir));
                 }
-                hardware_hardware_command_movement(STOP);
+                hardware_command_movement(convert_enum(STOP));
+                reset_orders();
+                set_last_floor(floor);
             }
         }
     }
