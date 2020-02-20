@@ -1,4 +1,6 @@
+#include <time.h>
 
+#define NUMBER_OF_FLOORS 4
 
 /**
  * @file
@@ -12,13 +14,19 @@ typedef enum {
     STOP = 2,
 }direction_t;
 
+typedef struct{
+    int down;
+    int up;
+    int stop;
+} order_t;
+
 /**
  * @brief A struct to represent the internal state of the elevator
  */
 typedef struct {
     direction_t direction; //!< Enum for the direction of the elevator
     int last_floor; //!< Last floor the elevator hit. Must be greater than 0 and less than 5.
-    int orders[4]; //!< Array with floor that have orders. orders[0] >0 means there is an order on floor 1.
+    order_t orders[4]; //!< Array with floor that have orders. orders[0] >0 means there is an order on floor 1.
 }elevator_state_t;
 
 
@@ -42,6 +50,7 @@ void moving(void);
 
 /**
  * @brief Function for initalizing hardware, variables and structs. MUST be called at startup.
+ * Also takes the elevator to floor 1.
  * 
  * @return 1 on success, 0 on failure.
  */
@@ -62,6 +71,7 @@ int orders_in_direction(direction_t direction);
 
 /**
  * @brief Polls the hardware via provided functions to check for new orders.
+ * Then updates state struct.
  * 
  * @return 1 on new orders and 0 otherwise.
  */
@@ -69,7 +79,20 @@ int check_new_orders();
 
 
 /**
- * @brief Checks if there is an order on @p floor.
+ * @brief Checks if there is an order on @p floor in the given @p direction .
  * 
  * @return 1 if there is an order, 0 otherwise.
-int order_on_floor(int floor);
+ */
+int order_on_floor(int floor, direction_t direction);
+
+
+/**
+ * @brief When this function is called, the elevator enters the stop state.
+ * Changes @p start_time to the time when the stop button is not pressed.
+ */
+void stop(time_t *start_time);
+
+/**
+ * @brief resets the order structs in the order array of the state struct
+ */
+void reset_orders(void);
