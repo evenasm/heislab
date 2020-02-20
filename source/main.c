@@ -47,9 +47,11 @@ int main()
         if (check_new_orders())
         {
             int floor = get_floor();
+            printf("hei\n");
             if (!(floor == -1))
             {
                 direction_t dir = get_direction();
+                printf("got direction \n");
                 while (!(hardware_read_floor_sensor(floor)))
                 {
                     hardware_command_movement(convert_enum(dir));
