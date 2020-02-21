@@ -8,6 +8,18 @@
  * @brief A library to abstract the operations of the elevator
  */
 
+/**
+ * @brief The states of the elevator
+ */
+typedef enum
+{
+    INIT,
+    MOVING,
+    MOVING_STOP,
+    OBSTRUCTION,
+    FLOOR_WITH_ORDER,
+    IDLE,
+} FSM_STATE_t;
 typedef enum
 {
     UP = 0,
@@ -20,7 +32,8 @@ typedef enum
  */
 typedef struct
 {
-    direction_t direction;                            //!< Enum for the direction of the elevator
+    direction_t direction;
+    direction_t last_direction;                       //!< Enum for the direction of the elevator
     int last_floor;                                   //!< Last floor the elevator hit. Must be greater than 0 and less than 5.
     int orders[NUMBER_OF_FLOORS][NUM_OF_ORDER_TYPES]; //!< Array with floor that have orders. orders[a][b] means there is an order of type b on floor a. 0 = up, 1 = inside.
 } elevator_state_t;
@@ -37,11 +50,13 @@ int check_valid_floor(int floor);
  */
 void set_floor_light(int floor);
 
-/**
- * @brief This function moves in the given @p direction until it hits the next floor or the stop button is pressed, 
- * at which point it relinquishes program control.
+/** 
+ * @brief Main function for moving between floors.
+ * Moves in the given direction while updating order matrix.
+ * Relinquishes program control on hitting a floor.
+ * @return Int corresponding to floor hit or -1 on stop button termination.
  */
-void moving(void);
+int moving();
 
 /**
  * @brief Function for initalizing hardware, variables and structs. MUST be called at startup.
@@ -58,7 +73,7 @@ void open_door();
 
 /**
  * @brief Checks for orders in the given @p direction above or below last_floor.
- * @return 1 on orders in given @p direction, 0 otherwise.
+ * @return 1 on orders in given @p direction, -1 if there are orders in another direcion, and 0 otherwise.
  */
 int orders_in_direction();
 
@@ -97,6 +112,12 @@ int get_floor(void);
 direction_t get_direction(void);
 
 /**
+ * @brief This return the correct direction if the elevator stopped.
+ * Also updates state struct so moving can be used.
+ */
+get_direction_stop();
+
+/**
  * @brief Converts local movement enum to hardware enum
  * 
  * @param local_enum The local enum to be converted
@@ -119,3 +140,42 @@ HardwareOrder int_to_order(int j);
  * 
  */
 void set_last_floor(int floor);
+
+/** 
+ * @brief The stop function for when the door is open.
+ */
+void stop();
+
+/**
+ * @brief Handles stop button pressed between floors.
+ */
+void stop_between(void);
+
+/**
+ * @brief Set the direction in the state struct to this.
+ */
+void set_direction(direction_t dir);
+
+/**
+ * @brief Resets orders on given floors.
+ */
+void reset_order_floor(int floor);
+
+/**
+ * @brief Checks if we should stop on given floor.
+ * 
+ * @return Bool if we should stop.
+ */
+int check_stop_floor(int floor);
+
+/**
+ * @brief Prints the state of the elevator.
+ */
+void toString(void);
+
+/**
+ * @brief A function to check if there are unserviced orders.
+ * 
+ * @return 1 if there are unserviced orders, 0 otherwise.
+ */
+int orders_unserviced(void);

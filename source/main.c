@@ -29,8 +29,15 @@ static void sigint_handler(int sig)
     exit(0);
 }
 
+FSM_STATE_t FSM_STATE;
+int current_floor;
+direction_t current_direction;
+
+//if the stop button is pressed, this int must be set so we know something happened.
+int stop_flag;
 int main()
 {
+
     int error = hardware_init();
     if (error != 0)
     {
@@ -39,93 +46,86 @@ int main()
     }
     clear_all_order_lights();
     init();
+    FSM_STATE = IDLE;
+    toString();
 
     signal(SIGINT, sigint_handler);
-
     while (1)
     {
-        if (check_new_orders())
+        switch (FSM_STATE)
         {
-            int floor = get_floor();
-            printf("hei\n");
-            if (!(floor == -1))
+        case IDLE:
+            printf("IDLE \n");
+            set_direction(STOP);
+            while (1)
             {
-                direction_t dir = get_direction();
-                printf("got direction \n");
-                while (!(hardware_read_floor_sensor(floor)))
+                if (check_new_orders())
                 {
-                    hardware_command_movement(convert_enum(dir));
+                    printf("checked orders!\n");
+                    int floor = get_floor();
+                    printf("floor _ %i \n", floor);
+                    if (!(floor == -1))
+                    {
+                        current_direction = get_direction();
+                        set_direction(current_direction);
+                        printf("IDLE\n");
+                        FSM_STATE = MOVING;
+                        break;
+                    }
                 }
-                hardware_command_movement(convert_enum(STOP));
-                reset_orders();
-                set_last_floor(floor);
             }
+            break;
+
+        case MOVING:
+            if (get_direction() == STOP)
+            {
+                FSM_STATE = IDLE;
+                break;
+            }
+            printf("MOVING\n");
+            printf("direction : %i\n", current_direction);
+
+            current_floor = moving();
+            if (current_floor == -1)
+            {
+                FSM_STATE = MOVING_STOP;
+
+                break;
+            }
+            if (check_stop_floor(current_floor))
+            {
+                open_door();
+            }
+
+            if (!orders_in_direction())
+            {
+                direction_t new_direction;
+                if (current_direction == UP)
+                {
+                    new_direction = DOWN;
+                }
+                else
+                {
+                    new_direction = UP;
+                }
+                set_direction(new_direction);
+                if (!orders_in_direction())
+                {
+                    FSM_STATE = IDLE;
+                    break;
+                }
+                break;
+            }
+            break;
+        case MOVING_STOP:
+            FSM_STATE = IDLE;
+            stop_flag = 1;
+            break;
+        default:
+            FSM_STATE = IDLE;
+            break;
         }
+        toString();
     }
-
-    // printf("=== Example Program ===\n");
-    // printf("Press the stop button on the elevator panel to exit\n");
-
-    // hardware_command_movement(HARDWARE_MOVEMENT_UP);
-
-    // while (1)
-    // {
-    //     if (hardware_read_stop_signal())
-    //     {
-    //         hardware_command_movement(HARDWARE_MOVEMENT_STOP);
-    //         break;
-    //     }
-
-    //     if (hardware_read_floor_sensor(0))
-    //     {
-    //         hardware_command_movement(HARDWARE_MOVEMENT_UP);
-    //     }
-    //     if (hardware_read_floor_sensor(HARDWARE_NUMBER_OF_FLOORS - 1))
-    //     {
-    //         hardware_command_movement(HARDWARE_MOVEMENT_DOWN);
-    //     }
-
-    //     /* All buttons must be polled, like this: */
-    //     for (int f = 0; f < HARDWARE_NUMBER_OF_FLOORS; f++)
-    //     {
-    //         if (hardware_read_order(f, HARDWARE_ORDER_INSIDE))
-    //         {
-    //             hardware_command_floor_indicator_on(f);
-    //         }
-    //     }
-
-    //     /* Lights are set and cleared like this: */
-    //     for (int f = 0; f < HARDWARE_NUMBER_OF_FLOORS; f++)
-    //     {
-    //         /* Internal orders */
-    //         if (hardware_read_order(f, HARDWARE_ORDER_INSIDE))
-    //         {
-    //             hardware_command_order_light(f, HARDWARE_ORDER_INSIDE, 1);
-    //         }
-
-    //         /* Orders going up */
-    //         if (hardware_read_order(f, HARDWARE_ORDER_UP))
-    //         {
-    //             hardware_command_order_light(f, HARDWARE_ORDER_UP, 1);
-    //         }
-
-    //         /* Orders going down */
-    //         if (hardware_read_order(f, HARDWARE_ORDER_DOWN))
-    //         {
-    //             hardware_command_order_light(f, HARDWARE_ORDER_DOWN, 1);
-    //         }
-    //     }
-
-    //     if (hardware_read_obstruction_signal())
-    //     {
-    //         hardware_command_stop_light(1);
-    //         clear_all_order_lights();
-    //     }
-    //     else
-    //     {
-    //         hardware_command_stop_light(0);
-    //     }
-    // }
-
     return 0;
 }
