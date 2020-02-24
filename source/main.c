@@ -34,7 +34,6 @@ int current_floor;
 direction_t current_direction;
 
 //if the stop button is pressed, this int must be set so we know something happened.
-int stop_flag;
 int main()
 {
 
@@ -119,7 +118,6 @@ int main()
             break;
         case MOVING_STOP:
             FSM_STATE = IDLE;
-            stop_flag = 1;
             break;
         default:
             FSM_STATE = IDLE;

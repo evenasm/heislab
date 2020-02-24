@@ -32,8 +32,8 @@ typedef enum
  */
 typedef struct
 {
-    direction_t direction;
-    direction_t last_direction;                       //!< Enum for the direction of the elevator
+    direction_t direction;                            //!< Enum for the direction of the elevator
+    direction_t last_direction;                       //!< Enum for the direction the elevator was going, used when stopping between floors
     int last_floor;                                   //!< Last floor the elevator hit. Must be greater than 0 and less than 5.
     int orders[NUMBER_OF_FLOORS][NUM_OF_ORDER_TYPES]; //!< Array with floor that have orders. orders[a][b] means there is an order of type b on floor a. 0 = up, 1 = inside.
 } elevator_state_t;
@@ -106,6 +106,7 @@ int get_floor(void);
 
 /**
  * @brief returns the direction of the floor with an order, and sets the sate struct accordingly.
+ * Also checks if we stopped between floors and sets direction accordingly.
  * 
  * @return The direction to go.
  */

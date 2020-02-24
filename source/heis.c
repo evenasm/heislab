@@ -6,6 +6,8 @@
 
 static volatile elevator_state_t state;
 
+int stop_flag;
+
 int check_valid_floor(int floor)
 {
     if ((floor > 0) || (floor > NUMBER_OF_FLOORS))
@@ -162,6 +164,15 @@ direction_t get_direction(void)
     {
         dir = UP;
     }
+    if((dir == STOP) && (stop_flag)){
+        if(state.last_direction == UP){
+            dir = DOWN;
+        }else{
+            dir = UP;
+        }
+    }
+    stop_flag = 0;
+
     return dir;
 }
 
@@ -273,6 +284,7 @@ int moving()
         while (hardware_read_stop_signal())
         {
             stop_between();
+            stop_flag = 1;
             return -1;
         }
         hardware_command_movement(convert_enum(state.direction));
