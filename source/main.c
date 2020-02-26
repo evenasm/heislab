@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <signal.h>
 #include "hardware.h"
-#include "heis.h"
+#include "control.h"
 
 static void clear_all_order_lights()
 {
@@ -33,7 +33,6 @@ FSM_STATE_t FSM_STATE;
 int current_floor;
 direction_t current_direction;
 
-//if the stop button is pressed, this int must be set so we know something happened.
 int main()
 {
 
@@ -44,9 +43,9 @@ int main()
         exit(1);
     }
     clear_all_order_lights();
-    init();
+    control_init();
     FSM_STATE = IDLE;
-    toString();
+    utilities_to_string();
 
     signal(SIGINT, sigint_handler);
     while (1)
@@ -55,28 +54,34 @@ int main()
         {
         case IDLE:
             printf("IDLE \n");
-            set_direction(STOP);
+            orders_set_direction(STOP);
             while (1)
             {
-                if (check_new_orders())
+                if (orders_check_new() && orders_unserviced())
                 {
                     printf("checked orders!\n");
-                    int floor = get_floor();
+                    int floor = orders_get_floor_idle();
                     printf("floor _ %i \n", floor);
                     if (!(floor == -1))
                     {
-                        current_direction = get_direction();
-                        set_direction(current_direction);
+                        current_direction = orders_get_direction();
+                        orders_set_direction(current_direction);
                         printf("IDLE\n");
+                        if(current_direction == STOP){
+                            control_open_door();
+                        }
                         FSM_STATE = MOVING;
                         break;
                     }
                 }
+                /* if(hardware_read_stop_signal()){
+                    control_open_door();
+                } */
             }
             break;
 
         case MOVING:
-            if (get_direction() == STOP)
+            if (!orders_unserviced())
             {
                 FSM_STATE = IDLE;
                 break;
@@ -84,30 +89,29 @@ int main()
             printf("MOVING\n");
             printf("direction : %i\n", current_direction);
 
-            current_floor = moving();
+            current_floor = control_moving();
             if (current_floor == -1)
             {
                 FSM_STATE = MOVING_STOP;
 
                 break;
             }
-            if (check_stop_floor(current_floor))
+            if (orders_check_stop_floor(current_floor))
             {
-                open_door();
+                control_open_door();
             }
 
             if (!orders_in_direction())
             {
-                direction_t new_direction;
                 if (current_direction == UP)
                 {
-                    new_direction = DOWN;
+                    current_direction = DOWN;
                 }
                 else
                 {
-                    new_direction = UP;
+                    current_direction = UP;
                 }
-                set_direction(new_direction);
+                orders_set_direction(current_direction);
                 if (!orders_in_direction())
                 {
                     FSM_STATE = IDLE;
@@ -123,7 +127,7 @@ int main()
             FSM_STATE = IDLE;
             break;
         }
-        toString();
+        utilities_to_string();
     }
     return 0;
 }
