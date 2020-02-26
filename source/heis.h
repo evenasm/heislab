@@ -112,11 +112,7 @@ int get_floor(void);
  */
 direction_t get_direction(void);
 
-/**
- * @brief This return the correct direction if the elevator stopped.
- * Also updates state struct so moving can be used.
- */
-get_direction_stop();
+
 
 /**
  * @brief Converts local movement enum to hardware enum

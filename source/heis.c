@@ -94,9 +94,9 @@ int orders_in_direction(void)
     if (state.direction == UP)
     {
         int floors_visited = state.last_floor;
-        for (int i = floors_visited; i < NUMBER_OF_FLOORS; i++)
+        for (int i = floors_visited + 1; i < NUMBER_OF_FLOORS; i++)
         {
-            if ((state.orders[i][1]) || (state.orders[i][1] || state.orders[i][2]))
+            if ((state.orders[i][0]) || (state.orders[i][1] || state.orders[i][2]))
             {
                 printf("Order remaining upwards \n");
                 return 1;
@@ -164,14 +164,16 @@ direction_t get_direction(void)
     {
         dir = UP;
     }
-    if((dir == STOP) && (stop_flag)){
+    else if((dir == STOP) && (stop_flag)){
         if(state.last_direction == UP){
             dir = DOWN;
+            state.last_floor++;
         }else{
             dir = UP;
+            state.last_floor--;
         }
     }
-    stop_flag = 0;
+    stop_flag = 0; 
 
     return dir;
 }

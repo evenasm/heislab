@@ -58,7 +58,7 @@ int main()
             set_direction(STOP);
             while (1)
             {
-                if (check_new_orders())
+                if (check_new_orders() && orders_unserviced())
                 {
                     printf("checked orders!\n");
                     int floor = get_floor();
@@ -68,6 +68,9 @@ int main()
                         current_direction = get_direction();
                         set_direction(current_direction);
                         printf("IDLE\n");
+                        if(current_direction == STOP){
+                            open_door();
+                        }
                         FSM_STATE = MOVING;
                         break;
                     }
@@ -76,7 +79,7 @@ int main()
             break;
 
         case MOVING:
-            if (get_direction() == STOP)
+            if (!orders_unserviced())
             {
                 FSM_STATE = IDLE;
                 break;
@@ -98,16 +101,15 @@ int main()
 
             if (!orders_in_direction())
             {
-                direction_t new_direction;
                 if (current_direction == UP)
                 {
-                    new_direction = DOWN;
+                    current_direction = DOWN;
                 }
                 else
                 {
-                    new_direction = UP;
+                    current_direction = UP;
                 }
-                set_direction(new_direction);
+                set_direction(current_direction);
                 if (!orders_in_direction())
                 {
                     FSM_STATE = IDLE;
