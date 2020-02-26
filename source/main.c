@@ -3,6 +3,8 @@
 #include <signal.h>
 #include "hardware.h"
 #include "control.h"
+#include "orders.h"
+#include "utilites.h"
 
 static void clear_all_order_lights()
 {
@@ -57,7 +59,7 @@ int main()
             orders_set_direction(STOP);
             while (1)
             {
-                if (orders_check_new() && orders_unserviced())
+                if (orders_check_new() || orders_unserviced())
                 {
                     printf("checked orders!\n");
                     int floor = orders_get_floor_idle();
@@ -74,9 +76,10 @@ int main()
                         break;
                     }
                 }
-                /* if(hardware_read_stop_signal()){
+                if(hardware_read_stop_signal()){
+                    printf("Called open door from main");
                     control_open_door();
-                } */
+                } 
             }
             break;
 
@@ -121,6 +124,11 @@ int main()
             }
             break;
         case MOVING_STOP:
+            while (hardware_read_stop_signal())
+                {
+            }
+            orders_reset();
+            hardware_command_stop_light(0);
             FSM_STATE = IDLE;
             break;
         default:

@@ -2,9 +2,10 @@
 #define CONTROL
 
 #include "utilites.h"
+#include <time.h>
 
-static int stop_flag;
-static elevator_state_t state;
+extern volatile elevator_state_t g_state;
+extern int g_stop_flag;
 
 /**
  * @file

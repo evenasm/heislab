@@ -72,6 +72,6 @@ int orders_check_stop_floor(int floor);
  * 
  * @return 1 on unserviced orders, 0 otherwise.
  */
-int orders_underviced(void);
+int orders_unserviced(void);
 
 #endif

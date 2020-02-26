@@ -1,6 +1,8 @@
 
 #ifndef UTILITIES
 #define UTILITIES
+#include <stdio.h>
+#include "hardware.h"
 
 #define NUMBER_OF_FLOORS 4
 #define NUM_OF_ORDER_TYPES 3

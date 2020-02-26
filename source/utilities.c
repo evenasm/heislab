@@ -1,6 +1,7 @@
-#include "hardware.h"
-#include "utilites.h
-"
+
+#include "utilites.h"
+
+volatile elevator_state_t g_state;
 
 HardwareOrder utilities_convert_enum(direction_t local_enum)
 {
@@ -62,7 +63,7 @@ void utilities_to_string(void)
     printf("Current state: (to be added) \n");
     for (int i = 0; i < NUMBER_OF_FLOORS; i++)
     {
-        printf("Orders at floor %i : UP: %i     STOP: %i    DOWN: %i \n", i, state.orders[i][0], state.orders[i][1], state.orders[i][2]);
+        printf("Orders at floor %i : UP: %i     STOP: %i    DOWN: %i \n", i, g_state.orders[i][0], g_state.orders[i][1], g_state.orders[i][2]);
     }
     printf("\n ==================================\n");
 }
