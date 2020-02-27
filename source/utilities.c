@@ -21,7 +21,6 @@ HardwareOrder utilities_convert_enum(direction_t local_enum)
     return order;
 }
 
-
 HardwareOrder utilities_int_to_order(int j)
 {
     HardwareOrder order;
@@ -59,11 +58,10 @@ int utilities_direction_to_int(direction_t dir)
 
 void utilities_to_string(void)
 {
-    printf("=======================================\n");
-    printf("Current state: (to be added) \n");
+    printf("============================================\n");
     for (int i = 0; i < NUMBER_OF_FLOORS; i++)
     {
         printf("Orders at floor %i : UP: %i     STOP: %i    DOWN: %i \n", i, g_state.orders[i][0], g_state.orders[i][1], g_state.orders[i][2]);
     }
-    printf("\n ==================================\n");
+    printf("\n==========================================\n");
 }

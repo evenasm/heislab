@@ -34,6 +34,7 @@ static void sigint_handler(int sig)
 FSM_STATE_t FSM_STATE;
 int current_floor;
 direction_t current_direction;
+int between_floors;
 
 int main()
 {
@@ -48,6 +49,7 @@ int main()
     control_init();
     FSM_STATE = IDLE;
     utilities_to_string();
+    int between_floors = 0;
 
     signal(SIGINT, sigint_handler);
     while (1)
@@ -59,27 +61,33 @@ int main()
             orders_set_direction(STOP);
             while (1)
             {
+                if (hardware_read_stop_signal())
+                {
+                    if (between_floors)
+                    {
+                        FSM_STATE = MOVING_STOP;
+                        break;
+                    }
+                    else
+                    {
+                        control_open_door();
+                    }
+                }
                 if (orders_check_new() || orders_unserviced())
                 {
-                    printf("checked orders!\n");
-                    int floor = orders_get_floor_idle();
-                    printf("floor _ %i \n", floor);
-                    if (!(floor == -1))
+                    if (!(orders_get_floor_idle() == -1))
                     {
                         current_direction = orders_get_direction();
                         orders_set_direction(current_direction);
                         printf("IDLE\n");
-                        if(current_direction == STOP){
+                        if (current_direction == STOP)
+                        {
                             control_open_door();
                         }
                         FSM_STATE = MOVING;
                         break;
                     }
                 }
-                if(hardware_read_stop_signal()){
-                    printf("Called open door from main");
-                    control_open_door();
-                } 
             }
             break;
 
@@ -96,15 +104,17 @@ int main()
             if (current_floor == -1)
             {
                 FSM_STATE = MOVING_STOP;
+                between_floors = 1;
 
                 break;
             }
+            between_floors = 0;
             if (orders_check_stop_floor(current_floor))
             {
                 control_open_door();
             }
 
-            if (!orders_in_direction())
+            if (!orders_in_current_direction())
             {
                 if (current_direction == UP)
                 {
@@ -115,7 +125,7 @@ int main()
                     current_direction = UP;
                 }
                 orders_set_direction(current_direction);
-                if (!orders_in_direction())
+                if (!orders_in_current_direction())
                 {
                     FSM_STATE = IDLE;
                     break;
@@ -124,8 +134,9 @@ int main()
             }
             break;
         case MOVING_STOP:
+            hardware_command_stop_light(1);
             while (hardware_read_stop_signal())
-                {
+            {
             }
             orders_reset();
             hardware_command_stop_light(0);

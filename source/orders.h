@@ -2,18 +2,16 @@
 #ifndef ORDERS
 #define ORDERS
 
-
 /**
  * @file
  * @brief A library to abstract the orders to the elevator.
  */
 
-
 /**
  * @brief Checks for orders in the given @p direction above or below last_floor.
  * @return 1 on orders in given @p direction, -1 if there are orders in another direcion, and 0 otherwise.
  */
-int orders_in_direction();
+int orders_in_current_direction();
 
 /**
  * @brief Polls the hardware via provided functions to check for new orders.

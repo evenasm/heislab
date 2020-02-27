@@ -4,7 +4,6 @@
 
 int g_stop_flag;
 
-
 void orders_reset(void)
 {
     for (int i = 0; i < NUMBER_OF_FLOORS; i++)
@@ -13,20 +12,21 @@ void orders_reset(void)
         {
             g_state.orders[i][j] = 0;
             hardware_command_order_light(i, utilities_int_to_order(j), 0);
-
         }
     }
 }
 
-int orders_in_direction(void)
+int orders_in_current_direction(void)
 {
     if (g_state.direction == UP)
     {
         int floors_visited = g_state.last_floor;
-        for (int i = floors_visited +1; i < NUMBER_OF_FLOORS; i++)
+        for (int i = floors_visited + 1; i < NUMBER_OF_FLOORS; i++)
         {
-            for(int j = 0; j < NUM_OF_ORDER_TYPES; j++){
-                if(g_state.orders[i][j] == 1){
+            for (int j = 0; j < NUM_OF_ORDER_TYPES; j++)
+            {
+                if (g_state.orders[i][j] == 1)
+                {
                     return 1;
                 }
             }
@@ -37,8 +37,10 @@ int orders_in_direction(void)
         int floors_left = g_state.last_floor;
         for (int i = 0; i < floors_left; i++)
         {
-           for(int j = 0; j < NUM_OF_ORDER_TYPES; j++){
-                if(g_state.orders[i][j] == 1){
+            for (int j = 0; j < NUM_OF_ORDER_TYPES; j++)
+            {
+                if (g_state.orders[i][j] == 1)
+                {
                     return 1;
                 }
             }
@@ -60,8 +62,8 @@ int orders_check_new(void)
             if ((order_state == 1) && (g_state.orders[i][j] != order_state))
             {
                 new_order = 1;
-                g_state.orders[i][j] = order_state; //1
-                hardware_command_order_light(i, utilities_int_to_order(j), 1);
+                g_state.orders[i][j] = order_state;
+                hardware_command_order_light(i, order, 1);
             }
         }
     }
@@ -83,7 +85,6 @@ int orders_get_floor_idle(void)
     return -1;
 }
 
-
 direction_t orders_get_direction(void)
 {
     direction_t dir = STOP;
@@ -95,14 +96,17 @@ direction_t orders_get_direction(void)
     {
         dir = UP;
     }
-    else if((dir == STOP) && (g_stop_flag)){
-        if(g_state.last_direction == UP){
+    else if ((dir == STOP) && (g_stop_flag))
+    {
+        if (g_state.last_direction == UP)
+        {
             dir = DOWN;
             g_state.last_floor++;
-        }else{
+        }
+        else
+        {
             dir = UP;
             g_state.last_floor--;
-
         }
     }
     g_stop_flag = 0;
@@ -119,14 +123,12 @@ int orders_on_floor(int floor, direction_t direction)
     return 0;
 }
 
-
 void orders_reset_on_floor(int floor)
 {
     for (int j = 0; j < NUM_OF_ORDER_TYPES; j++)
     {
         g_state.orders[floor][j] = 0;
         hardware_command_order_light(floor, utilities_int_to_order(j), 0);
-
     }
 }
 
@@ -143,7 +145,7 @@ int orders_check_stop_floor(int floor)
     else
     {
         direction_t opposite_direction = g_state.direction == UP ? DOWN : UP;
-        if (!orders_in_direction() && orders_on_floor(floor, opposite_direction))
+        if (!orders_in_current_direction() && orders_on_floor(floor, opposite_direction))
         {
             return 1;
         }
@@ -151,12 +153,17 @@ int orders_check_stop_floor(int floor)
     return 0;
 }
 
-int orders_unserviced(void){
-    for(int i = 0; i<NUMBER_OF_FLOORS; i++){
-        for(int j = 0; j < NUM_OF_ORDER_TYPES; j++){
-            if(g_state.orders[i][j] == 1){
+int orders_unserviced(void)
+{
+    for (int i = 0; i < NUMBER_OF_FLOORS; i++)
+    {
+        for (int j = 0; j < NUM_OF_ORDER_TYPES; j++)
+        {
+            if (g_state.orders[i][j] == 1)
+            {
                 return 1;
             }
         }
-    }return 0;
+    }
+    return 0;
 }

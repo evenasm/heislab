@@ -47,7 +47,7 @@ void control_set_last_floor(int floor);
 /** 
  * @brief The stop function for when the door is open.
  */
-void control_stop_at_floor(time_t *p_start_time);
+void control_stop_button_at_floor(time_t *p_start_time);
 
 /**
  * @brief Handles stop button pressed between floors.

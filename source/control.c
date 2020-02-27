@@ -11,7 +11,7 @@ int g_stop_flag;
 
 void control_set_floor_light(int floor)
 {
-   hardware_command_floor_indicator_on(floor);
+    hardware_command_floor_indicator_on(floor);
 }
 
 void control_init(void)
@@ -25,6 +25,7 @@ void control_init(void)
         hardware_command_movement(HARDWARE_MOVEMENT_DOWN);
     }
     hardware_command_movement(HARDWARE_MOVEMENT_STOP);
+    control_set_floor_light(0);
 }
 
 void control_open_door(void)
@@ -36,16 +37,16 @@ void control_open_door(void)
     time_t current_time;
     while (1)
     {
-        orders_check_new();
         orders_reset_on_floor(g_state.last_floor);
         if (hardware_read_stop_signal())
         {
-            control_stop_at_floor(&start_time);
+            control_stop_button_at_floor(&start_time);
         }
         if (hardware_read_obstruction_signal())
         {
             time(&start_time);
         }
+        orders_check_new();
         int diff = (int)(time(&current_time) - start_time);
         if (diff > 3)
         {
@@ -56,39 +57,35 @@ void control_open_door(void)
     }
 }
 
-void control_stop_at_floor(time_t *p_start_time)
+void control_stop_button_at_floor(time_t *p_start_time)
 {
     orders_reset();
     hardware_command_stop_light(1);
-    printf("turned ON stop light \n");
     while (hardware_read_stop_signal())
     {
     }
-    printf("turned OFF stop light \n");
     hardware_command_stop_light(0);
     time(p_start_time);
 }
-
 
 void orders_set_direction(direction_t dir)
 {
     g_state.direction = dir;
 }
 
-
 void control_set_last_floor(int floor)
 {
     g_state.last_floor = floor;
 }
-
 
 void control_stop_between(void)
 {
     hardware_command_movement(HARDWARE_MOVEMENT_STOP);
     orders_reset();
     hardware_command_stop_light(1);
-    if(g_state.last_direction != STOP){
-            g_state.last_direction = g_state.direction;
+    if (g_state.last_direction != STOP)
+    {
+        g_state.last_direction = g_state.direction;
     }
     g_state.direction = STOP;
 }
