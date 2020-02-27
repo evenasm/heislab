@@ -46,7 +46,6 @@ int orders_in_current_direction(void)
             }
         }
     }
-    printf("No orders remaining\n");
     return 0;
 }
 

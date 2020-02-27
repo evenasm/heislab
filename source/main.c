@@ -98,8 +98,6 @@ int main()
                 break;
             }
             printf("MOVING\n");
-            printf("direction : %i\n", current_direction);
-
             current_floor = control_moving();
             if (current_floor == -1)
             {
